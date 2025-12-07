@@ -15,7 +15,6 @@ export default function AdminLayout({ children }) {
   const pathname = usePathname();
 
   const menu = [
-    { name: "Dashboard", path: "/admin/dashboard" },
     { name: "Users", path: "/admin/users" },
     { name: "Pets", path: "/admin/pets" },
     { name: "Adoption", path: "/admin/adoptions" },

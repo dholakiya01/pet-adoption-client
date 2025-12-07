@@ -1,6 +1,11 @@
 "use client";
 
 import Pagination from "@/components/ui/Pagination";
+import {
+  getallApplication,
+  updateApplicationstatus,
+} from "@/services/adoption.service";
+import { showErrorToast, showSuccessToast } from "@/utils/validators";
 import { useEffect, useState } from "react";
 
 const STATUS_COLORS = {
@@ -23,35 +28,8 @@ export default function AdoptionPage() {
 
     // ✅ API reference (replace later)
     // /admin/adoptions?page=&search=&status=
-    const response = {
-      data: [
-        {
-          _id: "6933087a4005e4a41b446f1b",
-          iPetId: { vName: "Dog", vBreed: "uriwjei" },
-          iUserId: {
-            vEmail: "darshan@gmail.com",
-            vPhone: "48417770770",
-          },
-          vMessage: "mare levu chhe aa",
-          vStatus: "Pending",
-          iRequestedAt: 1764952186,
-        },
-        {
-          _id: "6933087a4005e4a41b446f1b",
-          iPetId: { vName: "Dog", vBreed: "uriwjei" },
-          iUserId: {
-            vEmail: "darshan@gmail.com",
-            vPhone: "48417770770",
-          },
-          vMessage: "mare levu chhe aa",
-          vStatus: "Rejected",
-          iRequestedAt: 1764952186,
-        },
-      ],
-      totalPages: 5,
-    };
-
-    setData(response.data);
+    const response = await getallApplication();
+    setData(response?.data?.data);
     setTotalPages(response.totalPages);
     setLoading(false);
   };
@@ -59,15 +37,25 @@ export default function AdoptionPage() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchAdoptions();
-  }, [page, search, status]);
+  }, [page, status]);
 
   /* ================= ACTION ================= */
   const updateStatus = async (id, newStatus) => {
-    console.log("Update:", id, newStatus);
-
-    // ⚠️ Call API here
-    // await api.patch(`/admin/adoption/${id}`, { vStatus: newStatus })
-
+    console.log(newStatus, "nwststatus/.....");
+    const updatestatus = {
+      vStatus: newStatus,
+    };
+    try {
+      const res = await updateApplicationstatus(id, updatestatus);
+      console.log(res, "res.......");
+      if (res.status === 200) {
+        showSuccessToast(res?.data?.message || "Status update suucessfully.");
+      }
+      console.log("Update:", id, updatestatus);
+    } catch (err) {
+      console.log(err);
+      showErrorToast(err?.response?.data?.message || "status update faild");
+    }
     fetchAdoptions();
   };
 
@@ -118,8 +106,8 @@ export default function AdoptionPage() {
               </tr>
             )}
 
-            {data.map((item) => (
-              <tr key={item._id} className="border-t">
+            {data?.map((item, i) => (
+              <tr key={i} className="border-t">
                 <td className="p-3">
                   <strong>{item.iPetId.vName}</strong>
                   <div className="text-xs text-gray-500">
@@ -163,11 +151,7 @@ export default function AdoptionPage() {
       </div>
 
       {/* ================= PAGINATION ================= */}
-      <Pagination
-        page={1}
-        totalPages={2}
-        onPageChange={4}
-      />
+      <Pagination page={1} totalPages={2} onPageChange={4} />
     </div>
   );
 }

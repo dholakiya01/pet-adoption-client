@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Menu, X, Heart, Phone, Mail } from "lucide-react";
 import Link from "next/link";
+import { useSelector } from "react-redux";
+import HeaderAuth from "./HeaderAuth";
 
 export default function Header() {
+  const token = useSelector((state)=>state.auth.token);
   const [isOpen, setIsOpen] = useState(false);
 
   const navtabs = [
@@ -72,11 +75,12 @@ export default function Header() {
           </ul>
 
           {/* CTA Button */}
-          <div className="hidden lg:block">
-            <button className="bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg">
-              Adopt Now
-            </button>
-          </div>
+          {/* <div className="hidden lg:block">
+            <Link href={'/login'} className="bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all shadow-md hover:shadow-lg">
+              Login
+            </Link>
+          </div> */}
+          <HeaderAuth token={token}/>
 
           {/* Mobile Menu Toggle */}
           <button
@@ -132,9 +136,10 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                <button className="w-full bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all">
-                  Adopt Now
-                </button>
+                {/* <Link href={'/Login'} className="w-full bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all">
+                  Login
+                </Link> */}
+                <HeaderAuth token={token}/>
               </li>
             </ul>
           </div>

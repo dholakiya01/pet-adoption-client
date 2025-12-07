@@ -1,30 +1,38 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { Heart, MapPin, Calendar, X } from 'lucide-react';
-import { getAllPets } from '@/services/pet.service';
-import { useSelector } from 'react-redux';
-import { useRouter } from 'next/navigation';
-import { applyApplication } from '@/services/adoption.service';
+"use client";
+import { useState, useEffect } from "react";
+import { Heart, MapPin, Calendar, X } from "lucide-react";
+import { getAllPets } from "@/services/pet.service";
+import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
+import { applyApplication } from "@/services/adoption.service";
+import { useForm } from "react-hook-form";
+import { showErrorToast, showSuccessToast } from "@/utils/validators";
 
 export default function PetsPage() {
-  const token = useSelector((state)=>state.auth.token);
+  const token = useSelector((state) => state.auth.token);
   const router = useRouter();
   const [pets, setPets] = useState([]);
-  const [filter, setFilter] = useState('All');
+  const [filter, setFilter] = useState("All");
   const [showModal, setShowModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [formData, setFormData] = useState({
-    vMessage: ''
+    vMessage: "",
   });
   const [loading, setLoading] = useState(false);
 
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm();
+
   // Mock pets data
   useEffect(() => {
-    const fetchpets = async()=>{
+    const fetchpets = async () => {
       const res = await getAllPets();
       setPets(res.data?.data?.data);
-    }
-    fetchpets()
+    };
+    fetchpets();
     // const mockPets = [
     //   {
     //     id: 1,
@@ -75,10 +83,11 @@ export default function PetsPage() {
   }, []);
 
   const handleAdoptClick = (pet) => {
-    // Check if token exists    
+    console.log(pet);
+    // Check if token exists
     if (!token) {
-      alert('Please login to adopt a pet');
-      router.push('/login')
+      alert("Please login to adopt a pet");
+      router.push("/login");
       return;
     }
 
@@ -86,48 +95,52 @@ export default function PetsPage() {
     setShowModal(true);
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     setLoading(true);
-
-    try {      
-      const response = await applyApplication(selectedPet.id,formData);
-
-      if (response.ok) {
-        alert('Application submitted successfully!');
+    const odata = {
+      iPetId: selectedPet?._id,
+      vMessage: data.vMessage,
+    };
+    try {
+      const response = await applyApplication(odata);
+      console.log(response,"response.....")
+      if (response.status === 200 || response.status === 201) {
+        setLoading(false)
+        showSuccessToast(
+          response?.data?.message || "Application submitted successfully!"
+        );
         setShowModal(false);
-        setFormData({ });
-        router.push('/applications')
-      } else {
-        alert('Failed to submit application');
+        router.push("/adoptions");
       }
     } catch (error) {
-      console.error('Error:', error);
-      alert('Error submitting application');
-    } finally {
       setLoading(false);
+      console.error("Error:", error);
+      showErrorToast(error?.response?.data?.message || "Something wrong");
     }
   };
 
-  const filteredPets = filter === 'All' 
-    ? pets 
-    : pets.filter(pet => pet.type === filter.slice(0, -1));
+  const filteredPets =
+    filter === "All"
+      ? pets
+      : pets.filter((pet) => pet.type === filter.slice(0, -1));
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="container mx-auto px-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">Available Pets</h1>
+        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-6">
+          Available Pets
+        </h1>
 
         {/* Filters */}
         <div className="flex gap-3 mb-8 flex-wrap">
-          {['All', 'Dogs', 'Cats'].map((f) => (
+          {["All", "Dogs", "Cats"].map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={`px-6 py-2 rounded-xl font-medium transition-all ${
                 filter === f
-                  ? 'bg-brand-primaryBlue text-white'
-                  : 'bg-white text-gray-700 hover:bg-gray-100'
+                  ? "bg-brand-primaryBlue text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
               }`}
             >
               {f}
@@ -137,10 +150,17 @@ export default function PetsPage() {
 
         {/* Pet Grid */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredPets.map((pet) => (
-            <div key={pet.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all">
+          {filteredPets.map((pet, i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all"
+            >
               <div className="relative h-64">
-                <img src={`${process.env.NEXT_PUBLIC_PORT}${pet.image}`} alt={pet.vName} className="w-full h-full object-cover" />
+                <img
+                  src={`${process.env.NEXT_PUBLIC_PORT}${pet.image}`}
+                  alt={pet.vName}
+                  className="w-full h-full object-cover"
+                />
                 <button className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center">
                   <Heart className="w-5 h-5 text-gray-600" />
                 </button>
@@ -150,21 +170,25 @@ export default function PetsPage() {
               </div>
 
               <div className="p-5">
-                <h3 className="text-xl font-bold text-gray-800 mb-1">{pet?.vName}</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-1">
+                  {pet?.vName}
+                </h3>
                 <p className="text-sm text-gray-600 mb-3">{pet.breed}</p>
-                
+
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2 text-brand-primaryBlue" />
-                    <span>{pet.iAge} • {pet.iGender === 1 ? "Male" : "Female"}</span>
+                    <span>
+                      {pet.iAge} • {pet.iGender === 1 ? "Male" : "Female"}
+                    </span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="w-4 h-4 mr-2 text-brand-primaryBlue" />
-                    <span>{pet.location || 'Gujrat'}</span>
+                    <span>{pet.location || "Gujrat"}</span>
                   </div>
                 </div>
 
-                <button 
+                <button
                   onClick={() => handleAdoptClick(pet)}
                   className="w-full bg-brand-primaryBlue text-white py-2.5 rounded-xl hover:bg-opacity-90 transition-colors font-medium"
                 >
@@ -182,32 +206,53 @@ export default function PetsPage() {
           <div className="bg-white rounded-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-2xl font-bold text-gray-800">Adopt {selectedPet?.name}</h2>
-                <button onClick={() => setShowModal(false)} className="text-gray-500 hover:text-gray-700">
+                <h2 className="text-2xl font-bold text-gray-800">
+                  Adopt {selectedPet?.name}
+                </h2>
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="text-gray-500 hover:text-gray-700"
+                >
                   <X className="w-6 h-6" />
                 </button>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Message
+                  </label>
+
                   <textarea
                     rows="4"
-                    required
-                    value={formData.vMessage}
-                    onChange={(e) => setFormData({...formData, vMessage: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
                     placeholder="Tell us why you want to adopt this pet..."
-                  ></textarea>
+                    className={`w-full px-4 py-2 border rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue 
+      ${errors.vMessage ? "border-red-500" : "border-gray-300"}`}
+                    {...register("vMessage", {
+                      required: "Message is required",
+                      minLength: {
+                        value: 10,
+                        message: "Message must be at least 10 characters",
+                      },
+                      maxLength: {
+                        value: 500,
+                        message: "Message cannot exceed 500 characters",
+                      },
+                    })}
+                  />
+
+                  {errors.vMessage && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.vMessage.message}
+                    </p>
+                  )}
                 </div>
 
                 <button
-                  type="submit"
                   disabled={loading}
                   className="w-full bg-brand-primaryBlue text-white py-3 rounded-xl hover:bg-opacity-90 transition-colors font-medium disabled:opacity-50"
                 >
-                  {loading ? 'Submitting...' : 'Submit Application'}
+                  {loading ? "Submitting..." : "Submit Application"}
                 </button>
               </form>
             </div>

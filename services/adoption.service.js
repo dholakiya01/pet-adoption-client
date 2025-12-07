@@ -13,12 +13,12 @@ export const getallApplication = async () => {
   return res;
 };
 
-export const applyApplication = async () => {
-  const res = await axiosInstance.post(`${baseURL}/adoption/apply`);
+export const applyApplication = async (data) => {
+  const res = await axiosInstance.post(`${baseURL}/adoption/apply`,data);
   return res;
 };
 
-export const updateApplicationstatus = async (id) => {
-  const res = await axiosInstance.patch(`${baseURL}/adoption/${id}/status`);
+export const updateApplicationstatus = async (id,data) => {
+  const res = await axiosInstance.patch(`${baseURL}/adoption/${id}/status`,data);
   return res;
 };

@@ -22,19 +22,21 @@ export default function PetsPage() {
   async function handleDelete(id) {
     try {
       const res = await removePets(id, token);
-      console.log(res,"Res....")
+      console.log(res, "Res....");
       if (res.status === 200) {
         showSuccessToast(res.data.message || "Pet remove successfully");
+        const getAll = await getAllPets();
+        setData(getAll?.data?.data?.data);
       }
     } catch (error) {
-      console.log(error,"err")
+      console.log(error, "err");
       showErrorToast(error?.data?.message || "Something went wrong");
     }
   }
 
   async function handleEdit(id) {
-    console.log(id,"id......")
-    router.push(`/admin/pets/${id}`)
+    console.log(id, "id......");
+    router.push(`/admin/pets/${id}`);
   }
 
   useEffect(() => {
@@ -70,46 +72,44 @@ export default function PetsPage() {
           </tr>
         </thead>
         <tbody>
-          {data?.map((item) => {
+          {data?.map((item, i) => {
             return (
-              <>
-                <tr className="border-t">
-                  <td className="p-3">
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_PORT}${item?.image}`}
-                      width={50}
-                      height={100}
-                      alt={item?.vName}
-                    />
-                  </td>
-                  <td className="p-3">{item?.vName}</td>
-                  <td className="p-3 text-center">{sortype(item.iType)}</td>
-                  <td className="p-3 text-center">{item?.vBreed}</td>
-                  <td className="p-3 text-center">{item?.iAgeMonths}</td>
-                  <td className="p-3 text-center">
-                    {item?.iGender == 1 ? "Male" : "Female"}
-                  </td>
-                  <td className="p-3 text-center">{item?.vDescription} </td>
-                  <td className="p-3 space-x-2 text-center">
-                    <button
-                      onClick={() => {
-                        handleEdit(item?._id);
-                      }}
-                      className="text-blue-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => {
-                        handleDelete(item?._id);
-                      }}
-                      className="text-red-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              </>
+              <tr className="border-t" key={i}>
+                <td className="p-3">
+                  <img
+                    src={`${process.env.NEXT_PUBLIC_PORT}${item?.image}`}
+                    width={50}
+                    height={100}
+                    alt={item?.vName}
+                  />
+                </td>
+                <td className="p-3">{item?.vName}</td>
+                <td className="p-3 text-center">{sortype(item.iType)}</td>
+                <td className="p-3 text-center">{item?.vBreed}</td>
+                <td className="p-3 text-center">{item?.iAgeMonths}</td>
+                <td className="p-3 text-center">
+                  {item?.iGender == 1 ? "Male" : "Female"}
+                </td>
+                <td className="p-3 text-center">{item?.vDescription} </td>
+                <td className="p-3 space-x-2 text-center">
+                  <button
+                    onClick={() => {
+                      handleEdit(item?._id);
+                    }}
+                    className="text-blue-600"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDelete(item?._id);
+                    }}
+                    className="text-red-600"
+                  >
+                    Delete
+                  </button>
+                </td>
+              </tr>
             );
           })}
         </tbody>
