@@ -29,7 +29,7 @@ export default function CreatePetPage() {
     setLoading(false);
   };
 
-  /* ✅ IMAGE HANDLER (NO PAGE RELOAD) */
+  /*  IMAGE HANDLER (NO PAGE RELOAD) */
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -38,7 +38,7 @@ export default function CreatePetPage() {
     setImagePreview(URL.createObjectURL(file));
   };
 
-  /* ✅ REMOVE IMAGE */
+  /*  REMOVE IMAGE */
   const removeImage = () => {
     setValue("image", null);
     setImagePreview(null);
@@ -102,7 +102,7 @@ export default function CreatePetPage() {
           <option value="2">Female</option>
         </Select>
 
-        {/* ✅ Image Upload */}
+        {/*  Image Upload */}
         <div>
           <label className="block mb-1 text-sm font-medium">Pet Image</label>
 

@@ -2,17 +2,31 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import Button from "@/components/ui/Button";
+import { LucideLogOut } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { removeToken, setUser } from "@/store/slices/authSlice";
+import { showSuccessToast } from "@/utils/validators";
 
 export default function AdminLayout({ children }) {
+  const dispatch = useDispatch();
+  const router = useRouter();
   const pathname = usePathname();
 
   const menu = [
-    // { name: "Dashboard", path: "/admin/dashboard" },
+    { name: "Dashboard", path: "/admin/dashboard" },
     { name: "Users", path: "/admin/users" },
     { name: "Pets", path: "/admin/pets" },
     { name: "Adoption", path: "/admin/adoptions" },
   ];
+
+  const handleLogout = () => {
+    dispatch(removeToken());
+    localStorage.clear();
+    showSuccessToast("Logout Successfully..");
+    router.push("/login");
+  };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -33,6 +47,12 @@ export default function AdminLayout({ children }) {
             </li>
           ))}
         </ul>
+        <Button
+          onClick={handleLogout}
+          className="mx-4 fixed bottom-14 px-4 py-3 bg-red-600"
+        >
+          <span className="d-flex"> Logout</span>
+        </Button>
       </aside>
 
       {/* Main */}

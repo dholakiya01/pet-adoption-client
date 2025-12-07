@@ -1,9 +1,19 @@
 // app/admin/pets/page.jsx
 "use client";
 
-import Link from "next/link";
+import { getallUsers } from "@/services/user.service";
+import { useEffect, useState } from "react";
 
 export default function UserPage() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const fetchuser = async () => {
+      const res = await getallUsers();
+      setData(res.data?.data?.getuser);
+    };
+    fetchuser();
+  }, []);
   return (
     <div>
       <div className="flex justify-between mb-4">
@@ -16,22 +26,31 @@ export default function UserPage() {
             <th className="p-3 text-left">Name</th>
             <th className="p-3">Type</th>
             <th className="p-3">Age (Months)</th>
-            <th className="p-3">Gender</th>
+            <th className="p-3">Email</th>
+            <th className="p-3">Location</th>
           </tr>
         </thead>
         <tbody>
-          <tr className="border-t">
-            <td className="p-3">Darshan</td>
-            <td className="p-3 text-center">1</td>
-            <td className="p-3 text-center">23</td>
-            <td className="p-3 text-center">2</td>
-
-            {/* if need deactive */}
-            {/* <td className="p-3 space-x-2 text-center">
-              <button className="text-red-600">Delete</button>
-            </td> */}
-          </tr>
-        </tbody>
+  {data && data.length > 0 ? (
+    data.map((item, i) => (
+      <tr key={item?._id || i} className="border-t">
+        <td className="p-3">{item?.vFullname}</td>
+        <td className="p-3 text-center">
+          {item?.iUserType === 1 ? "Admin" : "User"}
+        </td>
+        <td className="p-3 text-center">{item?.iAge}</td>
+        <td className="p-3 text-center">{item?.vEmail}</td>
+        <td className="p-3 text-center">{item?.vAddress}</td>
+      </tr>
+    ))
+  ) : (
+    <tr>
+      <td colSpan="5" className="text-center py-20">
+        No record found
+      </td>
+    </tr>
+  )}
+</tbody>
       </table>
     </div>
   );

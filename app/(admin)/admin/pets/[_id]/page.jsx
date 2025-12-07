@@ -1,7 +1,8 @@
 "use client";
 
 import { useForm } from "react-hook-form";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useParams, useRouter } from "next/navigation";
 
 import FormWrapper from "@/components/forms/FormWrapper";
 import Input from "@/components/forms/Input";
@@ -9,55 +10,123 @@ import Select from "@/components/forms/Select";
 import Textarea from "@/components/forms/Textarea";
 import Button from "@/components/ui/Button";
 
+import { showErrorToast, showSuccessToast } from "@/utils/validators";
+import { updatePets, viewByidPets } from "@/services/pet.service";
+
 export default function UpdatePetPage() {
+  const { _id } = useParams();
+  console.log(_id,"_id...")
+  const router = useRouter();
+
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null); 
+  const [newImage, setNewImage] = useState(null);
 
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     formState: { errors },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      vName: "",
+      iType: "",
+      vBreed: "",
+      iAgeMonths: "",
+      iGender: "",
+      vDescription: "",
+    },
+  });
 
-  const onSubmit = async (data) => {
-    console.log(data,"Data.........")
-    setLoading(true);
-    console.log("FORM DATA =>", data);
+  /* FETCH PET BY ID */
+  useEffect(() => {
+    if (!_id) return;
 
-    // simulate api
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
-  };
+    const fetchPet = async () => {
+      try {
+        const res = await viewByidPets(_id);
+        const pet = res.data?.data; //  adjust if needed
 
-  /* ✅ IMAGE HANDLER (NO PAGE RELOAD) */
+        reset({
+          vName: pet.vName,
+          iType: String(pet.iType),
+          vBreed: pet.vBreed,
+          iAgeMonths: pet.iAgeMonths,
+          iGender: String(pet.iGender),
+          vDescription: pet.vDescription,
+        });
+
+        if (pet?.image) {
+          setImagePreview(pet?.image); // existing image url
+        }
+      } catch {
+        showErrorToast("Failed to load pet data");
+      }
+    };
+
+    fetchPet();
+  }, [_id, reset]);
+
+  /* IMAGE CHANGE */
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    setNewImage(file);
     setValue("image", file);
     setImagePreview(URL.createObjectURL(file));
   };
 
-  /* ✅ REMOVE IMAGE */
+  /* REMOVE IMAGE */
   const removeImage = () => {
+    setNewImage(null);
     setValue("image", null);
     setImagePreview(null);
+  };
+
+  /* UPDATE PET */
+  const onSubmit = async (data) => {
+    console.log(data,"Data.....")
+    try {
+      setLoading(true);
+
+      const formData = new FormData();
+      formData.append("vName", data.vName);
+      formData.append("iType", data.iType);
+      formData.append("vBreed", data.vBreed);
+      formData.append("iAgeMonths", data.iAgeMonths);
+      formData.append("iGender", data.iGender);
+      formData.append("vDescription", data.vDescription);
+
+      // only send image if updated
+      if (newImage) {
+        formData.append("image", newImage);
+      }
+
+      await updatePets(_id, formData);
+
+      showSuccessToast("Pet updated successfully");
+      router.push("/admin/pets");
+    } catch (error) {
+      showErrorToast(
+        error?.response?.data?.message || "Update failed"
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <FormWrapper title="Update Pet" onSubmit={handleSubmit(onSubmit)}>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Pet Name */}
         <Input
           label="Pet Name"
-          placeholder="Enter pet name"
           disabled={loading}
           {...register("vName", { required: "Pet name is required" })}
           error={errors.vName?.message}
         />
 
-        {/* Pet Type */}
         <Select
           label="Pet Type"
           disabled={loading}
@@ -69,29 +138,21 @@ export default function UpdatePetPage() {
           <option value="2">Cat</option>
         </Select>
 
-        {/* Breed */}
         <Input
           label="Breed"
-          placeholder="Enter breed"
           disabled={loading}
           {...register("vBreed", { required: "Breed is required" })}
           error={errors.vBreed?.message}
         />
 
-        {/* Age */}
         <Input
           type="number"
           label="Age (Months)"
-          placeholder="Ex: 12"
           disabled={loading}
-          {...register("iAgeMonths", {
-            required: "Age required",
-            min: { value: 1, message: "Invalid age" },
-          })}
+          {...register("iAgeMonths", { required: true, min: 1 })}
           error={errors.iAgeMonths?.message}
         />
 
-        {/* Gender */}
         <Select
           label="Gender"
           disabled={loading}
@@ -103,26 +164,16 @@ export default function UpdatePetPage() {
           <option value="2">Female</option>
         </Select>
 
-        {/* ✅ Image Upload */}
+        {/* IMAGE */}
         <div>
           <label className="block mb-1 text-sm font-medium">Pet Image</label>
 
-          {!imagePreview ? (
-            <input
-              type="file"
-              accept="image/*"
-              disabled={loading}
-              onChange={handleImageChange}
-              className="w-full rounded border px-3 py-2 text-sm"
-            />
-          ) : (
+          {imagePreview ? (
             <div className="relative border rounded p-2">
               <img
-                src={imagePreview}
-                alt="Preview"
-                className="h-40 w-20 object-cover rounded"
+                src={`${process.env.NEXT_PUBLIC_PORT}${imagePreview}`}
+                className="h-40 w-24 object-cover rounded"
               />
-
               <button
                 type="button"
                 onClick={removeImage}
@@ -132,19 +183,19 @@ export default function UpdatePetPage() {
                 Remove
               </button>
             </div>
-          )}
-
-          {errors.image && (
-            <p className="text-red-500 text-xs mt-1">{errors.image.message}</p>
+          ) : (
+            <input
+              type="file"
+              accept="image/*"
+              disabled={loading}
+              onChange={handleImageChange}
+            />
           )}
         </div>
 
-        {/* Description (Full Width) */}
         <div className="md:col-span-2">
           <Textarea
             label="Description"
-            rows={4}
-            disabled={loading}
             {...register("vDescription", {
               required: "Description is required",
             })}
@@ -152,7 +203,6 @@ export default function UpdatePetPage() {
           />
         </div>
 
-        {/* Submit */}
         <div className="md:col-span-2 flex justify-end">
           <Button type="submit" disabled={loading}>
             {loading ? "Saving..." : "Update Pet"}

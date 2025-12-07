@@ -1,9 +1,9 @@
-'use client'
+"use client";
 import { useState } from "react";
 import Footer from "./Footer";
 import Hero from "./Hero";
 import Navbar from "./Navbar";
-import { Menu, X, Heart, Phone, Mail } from 'lucide-react';
+import { Menu, X, Heart, Phone, Mail } from "lucide-react";
 import Header from "./Header";
 import HeroSection from "./Hero";
 import PetTypesSection from "./PetTypesSection";
@@ -13,10 +13,10 @@ export default function HomePage() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-      <div className="min-h-screen">
-      <Header/>
+    <div className="min-h-screen">
+      <Header />
       <main>
-        <HeroSection/>
+        <HeroSection />
         <PetTypesSection />
         <PetCatalog />
       </main>

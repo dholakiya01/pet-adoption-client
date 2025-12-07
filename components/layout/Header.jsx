@@ -1,8 +1,16 @@
-import { useState } from 'react';
-import { Menu, X, Heart, Phone, Mail } from 'lucide-react';
+import { useState } from "react";
+import { Menu, X, Heart, Phone, Mail } from "lucide-react";
+import Link from "next/link";
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
+
+  const navtabs = [
+    { name: "Home", href: "/" },
+    { name: "Available Pets", href: "/pets" },
+    { name: "About Us", href: "#" },
+    { name: "Contact", href: "#" },
+  ];
 
   return (
     <header className="bg-white shadow-soft sticky top-0 z-50">
@@ -10,11 +18,17 @@ export default function Header() {
       <div className="bg-brand-primaryBlue text-white py-2">
         <div className="container mx-auto flex justify-between items-center text-sm">
           <div className="flex items-center gap-4">
-            <a href="tel:+1234567890" className="flex items-center gap-2 hover:opacity-80">
+            <a
+              href="tel:+1234567890"
+              className="flex items-center gap-2 hover:opacity-80"
+            >
               <Phone className="w-4 h-4" />
               <span className="hidden sm:inline">+1 (234) 567-890</span>
             </a>
-            <a href="mailto:info@petadopt.com" className="flex items-center gap-2 hover:opacity-80">
+            <a
+              href="mailto:info@petadopt.com"
+              className="flex items-center gap-2 hover:opacity-80"
+            >
               <Mail className="w-4 h-4" />
               <span className="hidden md:inline">info@petadopt.com</span>
             </a>
@@ -34,18 +48,27 @@ export default function Header() {
               <Heart className="w-6 h-6 text-brand-primaryBlue fill-brand-primaryBlue" />
             </div>
             <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-800">PawsHome</h1>
-              <p className="text-xxs text-gray-500 hidden sm:block">Find Your Perfect Companion</p>
+              <h1 className="text-xl lg:text-2xl font-bold text-gray-800">
+                PawsHome
+              </h1>
+              <p className="text-xxs text-gray-500 hidden sm:block">
+                Find Your Perfect Companion
+              </p>
             </div>
           </div>
 
           {/* Desktop Navigation */}
           <ul className="hidden lg:flex items-center gap-8 text-gray-700 font-medium">
-            <li><a href="#home" className="hover:text-brand-primaryBlue transition-colors">Home</a></li>
-            <li><a href="#pets" className="hover:text-brand-primaryBlue transition-colors">Available Pets</a></li>
-            <li><a href="#about" className="hover:text-brand-primaryBlue transition-colors">About Us</a></li>
-            <li><a href="#services" className="hover:text-brand-primaryBlue transition-colors">Services</a></li>
-            <li><a href="#contact" className="hover:text-brand-primaryBlue transition-colors">Contact</a></li>
+            {navtabs.map((item, i) => (
+              <li key={i}>
+                <Link
+                  href={item.href}
+                  className="hover:text-brand-primaryBlue transition-colors"
+                >
+                  {item.name}
+                </Link>
+              </li>
+            ))}
           </ul>
 
           {/* CTA Button */}
@@ -56,7 +79,7 @@ export default function Header() {
           </div>
 
           {/* Mobile Menu Toggle */}
-          <button 
+          <button
             className="lg:hidden text-gray-700"
             onClick={() => setIsOpen(!isOpen)}
           >
@@ -68,11 +91,46 @@ export default function Header() {
         {isOpen && (
           <div className="lg:hidden mt-4 pb-4 border-t border-gray-100">
             <ul className="flex flex-col gap-4 mt-4 text-gray-700 font-medium">
-              <li><a href="#home" className="block hover:text-brand-primaryBlue transition-colors">Home</a></li>
-              <li><a href="#pets" className="block hover:text-brand-primaryBlue transition-colors">Available Pets</a></li>
-              <li><a href="#about" className="block hover:text-brand-primaryBlue transition-colors">About Us</a></li>
-              <li><a href="#services" className="block hover:text-brand-primaryBlue transition-colors">Services</a></li>
-              <li><a href="#contact" className="block hover:text-brand-primaryBlue transition-colors">Contact</a></li>
+              <li>
+                <a
+                  href="#home"
+                  className="block hover:text-brand-primaryBlue transition-colors"
+                >
+                  Home
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#pets"
+                  className="block hover:text-brand-primaryBlue transition-colors"
+                >
+                  Available Pets
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#about"
+                  className="block hover:text-brand-primaryBlue transition-colors"
+                >
+                  About Us
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#services"
+                  className="block hover:text-brand-primaryBlue transition-colors"
+                >
+                  Services
+                </a>
+              </li>
+              <li>
+                <a
+                  href="#contact"
+                  className="block hover:text-brand-primaryBlue transition-colors"
+                >
+                  Contact
+                </a>
+              </li>
               <li>
                 <button className="w-full bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all">
                   Adopt Now

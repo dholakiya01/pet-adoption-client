@@ -1,13 +1,16 @@
-import { api } from "@/utils/api";
+import axios from "axios";
 
-export const login = (data) =>
-  api("/auth/login", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
 
-export const register = (data) =>
-  api("/auth/register", {
-    method: "POST",
-    body: JSON.stringify(data),
-  });
+export const authLogin = async (data) => {
+  console.log(data, "Data......");
+  const response = await axios.post(`${baseURL}/user/login`, data);
+  return response;
+};
+
+export const registerUser = async (data) => {
+  console.log(data, "Data......");
+  const response = await axios.post(`${baseURL}/user/create`, data);
+  console.log(response,"Resp[onse....")
+  return response;
+};
