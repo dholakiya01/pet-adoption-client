@@ -1,17 +1,24 @@
 // app/admin/pets/page.jsx
 "use client";
 
+import Input from "@/components/forms/Input";
+import Pagination from "@/components/ui/Pagination";
 import { getAllPets, removePets } from "@/services/pet.service";
 import { showErrorToast, showSuccessToast } from "@/utils/validators";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 
 export default function PetsPage() {
-  const [data, setData] = useState([]);
   const token = useSelector((state) => state.auth.token);
+
   const router = useRouter();
+  const [data, setData] = useState([]);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [search, setsearch] = useState("");
 
   const sortype = (value) => {
     if (value == 1) {
@@ -25,7 +32,7 @@ export default function PetsPage() {
       console.log(res, "Res....");
       if (res.status === 200) {
         showSuccessToast(res.data.message || "Pet remove successfully");
-        const getAll = await getAllPets();
+        const getAll = await getAllPets({ page, limit, search });
         setData(getAll?.data?.data?.data);
       }
     } catch (error) {
@@ -35,21 +42,30 @@ export default function PetsPage() {
   }
 
   async function handleEdit(id) {
-    console.log(id, "id......");
     router.push(`/admin/pets/${id}`);
   }
 
   useEffect(() => {
     const fetchPets = async () => {
-      const getAll = await getAllPets();
-      setData(getAll.data.data.data);
+      const getAll = await getAllPets({ page, limit, search });
+      setData(getAll.data.data?.data);
+      setTotalPages(getAll?.data?.data?.total?.totalRecords);
     };
     fetchPets();
-  }, []);
+  }, [search, page]);
   return (
     <div>
       <div className="flex justify-between mb-4">
         <h2 className="text-xl font-semibold">Pets</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Input
+            type="text"
+            placeholder={"Search pet"}
+            value={search}
+            onChange={(e) => setsearch(e.target.value)}
+          />
+        </div>
         <Link
           href="/admin/pets/create"
           className="bg-blue-600 text-white px-4 py-2 rounded"
@@ -57,7 +73,6 @@ export default function PetsPage() {
           + Add Pet
         </Link>
       </div>
-
       <table className="w-full bg-white rounded shadow">
         <thead className="bg-gray-100">
           <tr>
@@ -114,6 +129,12 @@ export default function PetsPage() {
           })}
         </tbody>
       </table>
+      {/* ================= PAGINATION ================= */}
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />{" "}
     </div>
   );
 }

@@ -17,20 +17,17 @@ const STATUS_COLORS = {
 export default function AdoptionPage() {
   const [data, setData] = useState([]);
   const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
-  const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
 
   /* ================= FETCH ================= */
   const fetchAdoptions = async () => {
     setLoading(true);
-
-    // ✅ API reference (replace later)
-    // /admin/adoptions?page=&search=&status=
-    const response = await getallApplication();
+    const response = await getallApplication({ page, limit, status });
     setData(response?.data?.data);
-    setTotalPages(response.totalPages);
+    setTotalPages(response?.data?.total);
     setLoading(false);
   };
 
@@ -62,16 +59,8 @@ export default function AdoptionPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Adoption Applications</h1>
-
       {/* ================= FILTERS ================= */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <input
-          placeholder="Search by pet or email"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border px-3 py-2 rounded"
-        />
-
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value)}
@@ -83,7 +72,6 @@ export default function AdoptionPage() {
           <option value="Rejected">Rejected</option>
         </select>
       </div>
-
       {/* ================= TABLE ================= */}
       <div className="overflow-x-auto bg-white rounded shadow">
         <table className="min-w-full text-sm">
@@ -149,9 +137,12 @@ export default function AdoptionPage() {
           </tbody>
         </table>
       </div>
-
       {/* ================= PAGINATION ================= */}
-      <Pagination page={1} totalPages={2} onPageChange={4} />
+      <Pagination
+        page={page}
+        totalPages={totalPages}
+        onPageChange={setPage}
+      />{" "}
     </div>
   );
 }

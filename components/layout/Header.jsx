@@ -136,9 +136,6 @@ export default function Header() {
                 </a>
               </li>
               <li>
-                {/* <Link href={'/Login'} className="w-full bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-all">
-                  Login
-                </Link> */}
                 <HeaderAuth token={token}/>
               </li>
             </ul>

@@ -15,11 +15,11 @@ import { updatePets, viewByidPets } from "@/services/pet.service";
 
 export default function UpdatePetPage() {
   const { _id } = useParams();
-  console.log(_id,"_id...")
+  console.log(_id, "_id...");
   const router = useRouter();
 
   const [loading, setLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState(null); 
+  const [imagePreview, setImagePreview] = useState(null);
   const [newImage, setNewImage] = useState(null);
 
   const {
@@ -87,7 +87,7 @@ export default function UpdatePetPage() {
 
   /* UPDATE PET */
   const onSubmit = async (data) => {
-    console.log(data,"Data.....")
+    console.log(data, "Data.....");
     try {
       setLoading(true);
 
@@ -109,9 +109,7 @@ export default function UpdatePetPage() {
       showSuccessToast("Pet updated successfully");
       router.push("/admin/pets");
     } catch (error) {
-      showErrorToast(
-        error?.response?.data?.message || "Update failed"
-      );
+      showErrorToast(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
@@ -171,8 +169,13 @@ export default function UpdatePetPage() {
           {imagePreview ? (
             <div className="relative border rounded p-2">
               <img
-                src={`${process.env.NEXT_PUBLIC_PORT}${imagePreview}`}
+                src={
+                  imagePreview.startsWith("blob:")
+                    ? imagePreview
+                    : `${process.env.NEXT_PUBLIC_PORT}${imagePreview}`
+                }
                 className="h-40 w-24 object-cover rounded"
+                alt="Pet"
               />
               <button
                 type="button"

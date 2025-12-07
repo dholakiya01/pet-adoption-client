@@ -8,17 +8,26 @@ export const getmyApplication = async () => {
   return res;
 };
 
-export const getallApplication = async () => {
-  const res = await axiosInstance.get(`${baseURL}/adoption/all`);
+export const getallApplication = async ({ page, limit, status }) => {
+  const res = await axiosInstance.get(`${baseURL}/adoption/all`, {
+    params: {
+      page,
+      limit,
+      vStatus: status,
+    },
+  });
   return res;
 };
 
 export const applyApplication = async (data) => {
-  const res = await axiosInstance.post(`${baseURL}/adoption/apply`,data);
+  const res = await axiosInstance.post(`${baseURL}/adoption/apply`, data);
   return res;
 };
 
-export const updateApplicationstatus = async (id,data) => {
-  const res = await axiosInstance.patch(`${baseURL}/adoption/${id}/status`,data);
+export const updateApplicationstatus = async (id, data) => {
+  const res = await axiosInstance.patch(
+    `${baseURL}/adoption/${id}/status`,
+    data
+  );
   return res;
 };

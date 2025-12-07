@@ -6,9 +6,10 @@ import {
   getmyApplication,
 } from "@/services/adoption.service";
 import { useSelector } from "react-redux";
+import { useRouter } from "next/navigation";
 
 export default function ApplicationsPage() {
-  const token = useSelector((state) => state.auth.token);
+  const router = useRouter();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -77,7 +78,7 @@ export default function ApplicationsPage() {
           <div className="bg-white rounded-xl p-8 text-center">
             <p className="text-gray-600 text-lg">No applications yet</p>
             <button
-              onClick={() => (window.location.href = "/pets")}
+              onClick={() => router.push('/pets')}
               className="mt-4 bg-brand-primaryBlue text-white px-6 py-2.5 rounded-xl hover:bg-opacity-90 transition-colors"
             >
               Browse Pets

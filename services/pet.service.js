@@ -2,25 +2,31 @@ import axios from "axios";
 import axiosInstance from "./api/axiosInstance";
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-export const getAllPets = async () => {
-  const res = await axios.get(`${baseURL}/pet/getall`);
+export const getAllPets = async ({ page, limit, search }) => {
+  const res = await axios.get(`${baseURL}/pet/getall`, {
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
   return res;
 };
 
 export const viewByidPets = async (params, data) => {
-    console.log(params,"parms.....")
+  console.log(params, "parms.....")
   const res = await axios.get(`${baseURL}/pet/viewbyid/${params}`, { data });
   return res;
 };
 
 export const createPets = async (data) => {
-  console.log(data,"Dat.a..")
+  console.log(data, "Dat.a..")
   const res = await axiosInstance.post(`${baseURL}/pet/create`, data);
   return res;
 };
 
 export const updatePets = async (params, data) => {
-  console.log(params,"params....")
+  console.log(params, "params....")
   const res = await axiosInstance.put(`${baseURL}/pet/update/${params}`, data);
   return res;
 };

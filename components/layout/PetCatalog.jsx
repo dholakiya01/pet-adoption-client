@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Heart, MapPin, Calendar } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function PetCatalog() {
+  const router = useRouter();
   const [filter, setFilter] = useState('All');
 
   const pets = [
@@ -179,7 +181,7 @@ export default function PetCatalog() {
 
         {/* View More Button */}
         <div className="text-center mt-10 lg:mt-12">
-          <button className="bg-brand-primaryBlue text-white px-8 py-3.5 rounded-xl hover:bg-opacity-90 transition-all font-medium shadow-md hover:shadow-lg">
+          <button onClick={()=>router.push('/pets')} className="bg-brand-primaryBlue text-white px-8 py-3.5 rounded-xl hover:bg-opacity-90 transition-all font-medium shadow-md hover:shadow-lg">
             View All Pets
           </button>
         </div>

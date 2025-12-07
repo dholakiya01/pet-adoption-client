@@ -2,8 +2,14 @@ import axios from "axios";
 import axiosInstance from "./api/axiosInstance";
 
 const baseURL = process.env.NEXT_PUBLIC_BASE_URL;
-export const getallUsers = async () => {
-  const res = await axiosInstance.get(`${baseURL}/user/getall`);
+export const getallUsers = async ({ page, limit, search }) => {
+  const res = await axiosInstance.get(`${baseURL}/user/getall`,{
+    params: {
+      page,
+      limit,
+      search,
+    },
+  });
   return res;
 };
 
