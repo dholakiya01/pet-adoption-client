@@ -1,79 +1,84 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { Heart, MapPin, Calendar, X } from 'lucide-react';
+import { getAllPets } from '@/services/pet.service';
+import { useSelector } from 'react-redux';
+import { useRouter } from 'next/navigation';
+import { applyApplication } from '@/services/adoption.service';
 
 export default function PetsPage() {
+  const token = useSelector((state)=>state.auth.token);
+  const router = useRouter();
   const [pets, setPets] = useState([]);
   const [filter, setFilter] = useState('All');
   const [showModal, setShowModal] = useState(false);
   const [selectedPet, setSelectedPet] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    phone: '',
-    address: '',
-    message: ''
+    vMessage: ''
   });
   const [loading, setLoading] = useState(false);
 
   // Mock pets data
   useEffect(() => {
-    const mockPets = [
-      {
-        id: 1,
-        name: "Max",
-        type: "Dog",
-        breed: "Golden Retriever",
-        age: "2 years",
-        gender: "Male",
-        location: "New York, NY",
-        image: "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?w=400&h=400&fit=crop",
-        description: "Friendly and energetic companion"
-      },
-      {
-        id: 2,
-        name: "Luna",
-        type: "Cat",
-        breed: "Persian",
-        age: "1 year",
-        gender: "Female",
-        location: "Los Angeles, CA",
-        image: "https://images.unsplash.com/photo-1573865526739-10c1d3a1f0cc?w=400&h=400&fit=crop",
-        description: "Calm and affectionate feline"
-      },
-      {
-        id: 3,
-        name: "Charlie",
-        type: "Dog",
-        breed: "Labrador",
-        age: "3 years",
-        gender: "Male",
-        location: "Chicago, IL",
-        image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
-        description: "Loyal and playful friend"
-      },
-      {
-        id: 4,
-        name: "Bella",
-        type: "Cat",
-        breed: "Siamese",
-        age: "6 months",
-        gender: "Female",
-        location: "Miami, FL",
-        image: "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400&h=400&fit=crop",
-        description: "Sweet and curious kitten"
-      }
-    ];
-    setPets(mockPets);
+    const fetchpets = async()=>{
+      const res = await getAllPets();
+      setPets(res.data?.data?.data);
+    }
+    fetchpets()
+    // const mockPets = [
+    //   {
+    //     id: 1,
+    //     name: "Max",
+    //     type: "Dog",
+    //     breed: "Golden Retriever",
+    //     age: "2 years",
+    //     gender: "Male",
+    //     location: "New York, NY",
+    //     image: "https://images.unsplash.com/photo-1633722715463-d30f4f325e24?w=400&h=400&fit=crop",
+    //     description: "Friendly and energetic companion"
+    //   },
+    //   {
+    //     id: 2,
+    //     name: "Luna",
+    //     type: "Cat",
+    //     breed: "Persian",
+    //     age: "1 year",
+    //     gender: "Female",
+    //     location: "Los Angeles, CA",
+    //     image: "https://images.unsplash.com/photo-1573865526739-10c1d3a1f0cc?w=400&h=400&fit=crop",
+    //     description: "Calm and affectionate feline"
+    //   },
+    //   {
+    //     id: 3,
+    //     name: "Charlie",
+    //     type: "Dog",
+    //     breed: "Labrador",
+    //     age: "3 years",
+    //     gender: "Male",
+    //     location: "Chicago, IL",
+    //     image: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=400&fit=crop",
+    //     description: "Loyal and playful friend"
+    //   },
+    //   {
+    //     id: 4,
+    //     name: "Bella",
+    //     type: "Cat",
+    //     breed: "Siamese",
+    //     age: "6 months",
+    //     gender: "Female",
+    //     location: "Miami, FL",
+    //     image: "https://images.unsplash.com/photo-1513360371669-4adf3dd7dff8?w=400&h=400&fit=crop",
+    //     description: "Sweet and curious kitten"
+    //   }
+    // ];
+    // setPets(mockPets);
   }, []);
 
   const handleAdoptClick = (pet) => {
-    // Check if token exists
-    const token = localStorage.getItem('authToken');
-    
+    // Check if token exists    
     if (!token) {
       alert('Please login to adopt a pet');
-      window.location.href = '/login';
+      router.push('/login')
       return;
     }
 
@@ -85,26 +90,14 @@ export default function PetsPage() {
     e.preventDefault();
     setLoading(true);
 
-    try {
-      const token = localStorage.getItem('authToken');
-      
-      const response = await fetch('YOUR_API_ENDPOINT/applications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          petId: selectedPet.id,
-          ...formData
-        })
-      });
+    try {      
+      const response = await applyApplication(selectedPet.id,formData);
 
       if (response.ok) {
         alert('Application submitted successfully!');
         setShowModal(false);
-        setFormData({ fullName: '', email: '', phone: '', address: '', message: '' });
-        window.location.href = '/applications';
+        setFormData({ });
+        router.push('/applications')
       } else {
         alert('Failed to submit application');
       }
@@ -147,7 +140,7 @@ export default function PetsPage() {
           {filteredPets.map((pet) => (
             <div key={pet.id} className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all">
               <div className="relative h-64">
-                <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
+                <img src={`${process.env.NEXT_PUBLIC_PORT}${pet.image}`} alt={pet.vName} className="w-full h-full object-cover" />
                 <button className="absolute top-4 right-4 w-10 h-10 bg-white rounded-full flex items-center justify-center">
                   <Heart className="w-5 h-5 text-gray-600" />
                 </button>
@@ -157,17 +150,17 @@ export default function PetsPage() {
               </div>
 
               <div className="p-5">
-                <h3 className="text-xl font-bold text-gray-800 mb-1">{pet.name}</h3>
+                <h3 className="text-xl font-bold text-gray-800 mb-1">{pet?.vName}</h3>
                 <p className="text-sm text-gray-600 mb-3">{pet.breed}</p>
                 
                 <div className="space-y-2 mb-4">
                   <div className="flex items-center text-sm text-gray-600">
                     <Calendar className="w-4 h-4 mr-2 text-brand-primaryBlue" />
-                    <span>{pet.age} • {pet.gender}</span>
+                    <span>{pet.iAge} • {pet.iGender === 1 ? "Male" : "Female"}</span>
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <MapPin className="w-4 h-4 mr-2 text-brand-primaryBlue" />
-                    <span>{pet.location}</span>
+                    <span>{pet.location || 'Gujrat'}</span>
                   </div>
                 </div>
 
@@ -196,57 +189,14 @@ export default function PetsPage() {
               </div>
 
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.fullName}
-                    onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                  <input
-                    type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                  <input
-                    type="tel"
-                    required
-                    value={formData.phone}
-                    onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
-                  />
-                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Message</label>
                   <textarea
                     rows="4"
                     required
-                    value={formData.message}
-                    onChange={(e) => setFormData({...formData, message: e.target.value})}
+                    value={formData.vMessage}
+                    onChange={(e) => setFormData({...formData, vMessage: e.target.value})}
                     className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-primaryBlue"
                     placeholder="Tell us why you want to adopt this pet..."
                   ></textarea>

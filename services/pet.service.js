@@ -14,7 +14,8 @@ export const viewByidPets = async (params, data) => {
 };
 
 export const createPets = async (data) => {
-  const res = await axiosInstance.post(`${baseURL}/pet/create`, { data });
+  console.log(data,"Dat.a..")
+  const res = await axiosInstance.post(`${baseURL}/pet/create`, data);
   return res;
 };
 

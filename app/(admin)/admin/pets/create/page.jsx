@@ -8,8 +8,12 @@ import Input from "@/components/forms/Input";
 import Select from "@/components/forms/Select";
 import Textarea from "@/components/forms/Textarea";
 import Button from "@/components/ui/Button";
+import { createPets } from "@/services/pet.service";
+import { showErrorToast, showSuccessToast } from "@/utils/validators";
+import { useRouter } from "next/navigation";
 
 export default function CreatePetPage() {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
 
@@ -21,12 +25,42 @@ export default function CreatePetPage() {
   } = useForm();
 
   const onSubmit = async (data) => {
-    setLoading(true);
-    console.log("FORM DATA =>", data);
+    try {
+      setLoading(true);
+      console.log("FORM DATA =>", data);
 
-    // simulate api
-    await new Promise((r) => setTimeout(r, 1500));
-    setLoading(false);
+      const formData = new FormData();
+
+      // text fields
+      formData.append("vName", data?.vName || "");
+      formData.append("iType", data?.iType || "");
+      formData.append("vBreed", data?.vBreed || "");
+      formData.append("iAgeMonths", data?.iAgeMonths || null);
+      formData.append("iGender", data?.iGender || null);
+      formData.append("vDescription", data?.vDescription || "");
+
+      // image field
+      if (data?.image instanceof File) {
+        formData.append("image", data.image);
+      }
+
+      for (const [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      console.log(formData,"formdata....")
+      const res = await createPets(formData);
+      if (res.status == 200) {
+        showSuccessToast(res.data.message || "Pet create successfully.");
+        router.push("/admin/pets");
+      }
+
+      setLoading(false);
+    } catch (err) {
+      console.log(err);
+      setLoading(false);
+      showErrorToast(err.response?.data?.message || "Something went wrong");
+    }
   };
 
   /*  IMAGE HANDLER (NO PAGE RELOAD) */
@@ -45,7 +79,11 @@ export default function CreatePetPage() {
   };
 
   return (
-    <FormWrapper title="Create Pet" onSubmit={handleSubmit(onSubmit)}>
+    <FormWrapper
+      title="Create Pet"
+      onSubmit={handleSubmit(onSubmit)}
+      enctype="multipart/formdata"
+    >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Pet Name */}
         <Input
