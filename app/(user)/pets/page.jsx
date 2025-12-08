@@ -29,7 +29,7 @@ export default function PetsPage() {
   // Mock pets data
   useEffect(() => {
     const fetchpets = async () => {
-      const res = await getAllPets();
+      const res = await getAllPets({ page: 1, limit: 100, search:"" });
       setPets(res.data?.data?.data);
     };
     fetchpets();
@@ -103,9 +103,9 @@ export default function PetsPage() {
     };
     try {
       const response = await applyApplication(odata);
-      console.log(response,"response.....")
+      console.log(response, "response.....");
       if (response.status === 200 || response.status === 201) {
-        setLoading(false)
+        setLoading(false);
         showSuccessToast(
           response?.data?.message || "Application submitted successfully!"
         );
