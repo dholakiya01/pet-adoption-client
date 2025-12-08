@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import HeaderAuth from "./HeaderAuth";
 
 export default function Header() {
-  const token = useSelector((state)=>state.auth.token);
+  const token = useSelector((state) => state.auth.token);
   const [isOpen, setIsOpen] = useState(false);
 
   const navtabs = [
@@ -80,7 +80,7 @@ export default function Header() {
               Login
             </Link>
           </div> */}
-          <HeaderAuth token={token}/>
+          <HeaderAuth token={token} />
 
           {/* Mobile Menu Toggle */}
           <button
@@ -95,49 +95,16 @@ export default function Header() {
         {isOpen && (
           <div className="lg:hidden mt-4 pb-4 border-t border-gray-100">
             <ul className="flex flex-col gap-4 mt-4 text-gray-700 font-medium">
-              <li>
-                <a
-                  href="#home"
-                  className="block hover:text-brand-primaryBlue transition-colors"
-                >
-                  Home
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#pets"
-                  className="block hover:text-brand-primaryBlue transition-colors"
-                >
-                  Available Pets
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#about"
-                  className="block hover:text-brand-primaryBlue transition-colors"
-                >
-                  About Us
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#services"
-                  className="block hover:text-brand-primaryBlue transition-colors"
-                >
-                  Services
-                </a>
-              </li>
-              <li>
-                <a
-                  href="#contact"
-                  className="block hover:text-brand-primaryBlue transition-colors"
-                >
-                  Contact
-                </a>
-              </li>
-              <li>
-                <HeaderAuth token={token}/>
-              </li>
+              {navtabs.map((item, i) => (
+                <li key={i}>
+                  <Link
+                    href={item.href}
+                    className="block hover:text-brand-primaryBlue transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         )}

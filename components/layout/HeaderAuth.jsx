@@ -19,7 +19,8 @@ export default function HeaderAuth({ token }) {
   };
 
   return (
-    <div className="hidden lg:block">
+    // <div className="hidden lg:block">
+    <div className="flex lg:flex">
       {token ? (
         <>
           <Link
